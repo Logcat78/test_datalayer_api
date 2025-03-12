@@ -2,33 +2,31 @@ package com.torsunov.revive.data
 
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
-import com.google.android.gms.wearable.Channel
-import com.google.android.gms.wearable.DataEventBuffer
-
 import com.google.android.gms.wearable.MessageEvent
-import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.WearableListenerService
 import com.torsunov.revive.MainActivity
 
 class WearMessageListenerService : WearableListenerService() {
+    private val tag = "DataLayerReviveApp" // Вставь его как фильтр в логкет
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("WearOS123", "Service created")
-        Toast.makeText(this, "Сервис запущен", Toast.LENGTH_LONG).show()
     }
 
-
+    //Коллбек для получения сообщений
     override fun onMessageReceived(messageEvent: MessageEvent) {
-        Log.d("WearOS123", "Получен запрос на открытие приложения")
+        Log.d(tag, "Event received")
+        //Указываем путь, как на часах
         if (messageEvent.path == "/revive") {
-            // Открываем приложение на телефоне
+            // Сообщения приходят в виде байтов, поэтому декодируем их в строку
+            val data = messageEvent.data.decodeToString()
+            // Помещаем сообщение в флоу
+            DataRepo.data.value = data
+            Log.d(tag, data)
+            // Открываем приложение
             val intent = Intent(this, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
-            Log.d("WearOS123", "Получен запрос на открытие приложения")
-            Toast.makeText(this, "Получен запрос на открытие приложения", Toast.LENGTH_LONG).show()
         }
     }
 }
